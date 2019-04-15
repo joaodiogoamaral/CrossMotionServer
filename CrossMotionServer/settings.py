@@ -14,11 +14,11 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+#BASE_DIR = '/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis'
 #folders to upload files
 MEDIA_URL = '/uploaded_videos/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR,'uploaded_videos')
+MEDIA_ROOT = os.path.join(BASE_DIR,'ServerData')
 
 
 
@@ -31,7 +31,7 @@ SECRET_KEY = 'aelltb=a9f41xnl#o828jj#^m+8$p^z$yw-fy5wzj7&w7bc&%@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
