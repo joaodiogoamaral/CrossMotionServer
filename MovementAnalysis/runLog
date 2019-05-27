@@ -1,0 +1,53 @@
+videos/bs1r.mp4
+Starting OpenPose demo...
+Configuring OpenPose...
+Starting thread(s)...
+Auto-detecting all available GPUs... Detected 1 GPU(s), using 1 of them starting at GPU 0.
+OpenPose demo successfully finished. Total time: 3.990346 seconds.
+videos/gs3r.mp4
+Starting OpenPose demo...
+Configuring OpenPose...
+Starting thread(s)...
+Auto-detecting all available GPUs... Detected 1 GPU(s), using 1 of them starting at GPU 0.
+OpenPose demo successfully finished. Total time: 4.131435 seconds.
+/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid1 /home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid2
+['compareVideos.py', '/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid1', '/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid2']
+/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid1
+/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid1
+
+Number of frames in video:54
+
+right
+/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid2
+/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis/temp/vid2
+
+Number of frames in video:58
+
+right
+[array([ -93.35183404,  -94.06589017,  -94.40762382,  -94.77086139,
+        -97.61162034, -100.84340866, -103.83405234, -104.40282293,
+       -106.46929639, -109.23077009, -114.55765804, -115.57013683,
+       -119.29537302, -124.98480008, -129.58005396, -129.86482258,
+       -132.46657665, -136.45573748, -136.87895175, -137.79367687,
+       -137.81434531, -136.82165865, -135.15808621, -130.70620671,
+       -129.35897614, -128.42396084, -123.55836073, -117.42348622,
+       -116.94645594, -112.16125926, -107.18349968, -100.31230599,
+        -97.05467005,  -96.30897562,  -94.15986278,  -94.53022533,
+        -94.44550216,  -94.46322575,  -94.45964906,  -94.46000907,
+        -94.45997179,  -94.45978139,  -94.45982436,  -94.46103376,
+        -94.4636155 ,  -94.46232107,  -94.46259443,  -94.46251361,
+        -94.46252795,  -94.46224383]), array([-84.0041773 , -83.98699486, -83.9082801 , -83.88009452,
+       -82.97995393, -81.57398464, -80.64549448, -80.3174366 ,
+       -80.76120545, -80.13189075, -77.67790034, -77.39859578,
+       -76.63102175, -75.73860855, -74.67764088, -74.56188434,
+       -74.12925156, -73.53359791, -72.99586402, -73.37812985,
+       -73.39699487, -73.42390648, -73.36093865, -73.79097067,
+       -74.57571645, -74.9253223 , -75.95143116, -77.14512111,
+       -77.34966021, -77.87777991, -80.25570296, -82.36877341,
+       -84.04051583, -84.2885601 , -85.15644746, -84.96454224,
+       -85.00816746, -84.99889254, -85.00101481, -85.00058364,
+       -85.00059132, -85.00182389, -84.99696248, -85.02256669,
+       -85.06439229, -85.05786048, -85.05935956, -85.05903102,
+       -85.05915941, -85.05701416])]
+Similarity between videos 0and1:	[[0.51745653 0.97512727]
+ [0.5724396  0.99767907]]
