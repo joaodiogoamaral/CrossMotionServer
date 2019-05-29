@@ -1,0 +1,25 @@
+{% load staticfiles %}
+
+
+<h1>Feedback for {{video_name}}</h1>
+{% if directives %}
+	<ul>
+	{% for item in directives %}
+	<!--<li>{{item}}</>-->
+
+	<!--<li><a href="">{{item}}</a></li>--> 
+	<li>{{item}}</li>
+	
+	{% endfor %}
+	</ul>
+{% endif %}
+
+{% block contents %}
+
+<!--https://192.168.0.100:8000/ProcessedVideos/joao/badsq2r/badsq2r.mp4-->
+<video name='video' controls autoplay width='50%' height='40%'>
+
+    <source src="/{{MEDIA_URL}}ProcessedVideos/{{op_output_path}}" type="video/mp4"></source>
+   
+</video>
+{% endblock %}
