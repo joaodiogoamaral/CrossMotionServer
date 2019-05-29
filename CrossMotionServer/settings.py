@@ -16,11 +16,16 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #BASE_DIR = '/home/ieeta/JoaoAmaral_Crossfit/MovementAnalysis'
 #folders to upload files
-MEDIA_URL = '/uploaded_videos/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR,'ServerData')
 
 
+MEDIA_ROOT = os.path.join(BASE_DIR,'ServerData/')
+
+MEDIA_URL='ServerData/'
+
+
+#MEDIA_URL = 'ServerData/' + 'ProcessedVideos' + '/'
+
+LOGIN_REDIRECT_URL='show_uploaded/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -37,6 +42,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'sslserver',
     'polls.apps.PollsConfig',
     'upload.apps.UploadConfig',
     'django.contrib.admin',
@@ -62,7 +68,7 @@ ROOT_URLCONF = 'CrossMotionServer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
