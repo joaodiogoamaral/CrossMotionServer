@@ -188,6 +188,9 @@ def checkSquat(features,plane,results):
 
 	elif(plane == 'right'):
 
+
+		print('MAX ANGLE HIP:' + str(max(features['rHipKnee'])))
+		
 		if(max(features['rHipKnee'])>0):
 
 			results['depth'] = 'OK'

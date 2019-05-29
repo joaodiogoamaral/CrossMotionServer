@@ -1,7 +1,13 @@
+
+<h1>Videos uploaded by {{user}}</h1>
 {% if flist %}
 	<ul>
 	{% for item in flist %}
-	<li>{{item}}</li>
+	<!--<li>{{item}}</>-->
+
+	<!--<li><a href="">{{item}}</a></li>--> 
+	<li><a href="/upload/feedback/{{item}}">{{item}}</a></li>
+	
 	{% endfor %}
 	</ul>
 {% endif %}
