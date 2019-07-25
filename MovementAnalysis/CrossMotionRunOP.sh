@@ -54,7 +54,28 @@ runOpenPose()
 
 #execute python program to process outputs
 
+storeModelRunOP()
+{
+	cd $OPENPOSE_DIR
 
+	#./build/examples/openpose/openpose.bin  --render_pose 0 --video $1 --write_json $2 --keypoint_scale 3 #--display 0
+
+	#with video
+	CMD=$(ffprobe -loglevel error -select_streams v:0 -show_entries stream_tags=rotate -of default=nw=1:nk=1 -i "$1")
+
+
+	
+
+	if [[ "$CMD" -eq "90" ]]; then
+		echo "Video is rotated"
+
+		./build/examples/openpose/openpose.bin  --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 --frame_rotate 270
+
+	else
+		./build/examples/openpose/openpose.bin  --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 #--frame_rotate 270 #--disable_blending true
+	fi
+	cd $SCRIPT_DIR
+}
 
 
 
@@ -123,7 +144,7 @@ case "$1" in
 
 		python ./compareVideos.py $ARG 
 
-		#
+		
 
 
 
@@ -150,13 +171,13 @@ case "$1" in
 		VIDEO_ABS_PATH="$(pwd)/$VIDEO_RELATIVE_PATH"
 		checkVideoExists $VIDEO_ABS_PATH
 
-		runOpenPose $VIDEO_ABS_PATH $OUTPUT_DIR
+		storeModelRunOP $VIDEO_ABS_PATH $OUTPUT_DIR
 
 
 
-		python storeModel.py $OUTPUT_DIR #$EXERCISE
+		python storeModel.py $OUTPUT_DIR $EXERCISE
 
-
+		echo "$VIDEO_ABS_PATH" >> $(pwd)/VidsUsed2Models/StoredModels.txt
 		;;
 
 

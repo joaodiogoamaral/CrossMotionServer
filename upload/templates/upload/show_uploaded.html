@@ -1,13 +1,23 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'upload/style.css' %}">
+<div>
+	<header>
+		<h1>Videos uploaded by {{user}}</h1>
+	</header>
+	</div>
+<div>
+	<body>
+	{% if flist %}
+		<ul>
+		{% for item in flist %}
+		<!--<li>{{item}}</>-->
 
-<h1>Videos uploaded by {{user}}</h1>
-{% if flist %}
-	<ul>
-	{% for item in flist %}
-	<!--<li>{{item}}</>-->
+		<!--<li><a href="">{{item}}</a></li>--> 
+		<li><a href="/upload/feedback/{{item}}">{{item}}</a></li>
+		
+		{% endfor %}
+		</ul>
 
-	<!--<li><a href="">{{item}}</a></li>--> 
-	<li><a href="/upload/feedback/{{item}}">{{item}}</a></li>
-	
-	{% endfor %}
-	</ul>
-{% endif %}
+	{% endif %}
+	</body>
+</div>

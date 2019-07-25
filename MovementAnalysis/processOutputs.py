@@ -5,16 +5,25 @@ from scipy.interpolate import interpolate,interp1d,splev,splrep,CubicSpline
 import matplotlib.pyplot as plt
 import numpy as np
 import peakutils as pk 
+import scipy
+import peakutils
 
 CONFIDENCE_THRESHOLD = 0.5
 INTERPOLATION_ORDER = 10
 
-N_PTS = 100 #Number of points for time vectors
+N_PTS = 10000 #Number of points for time vectors
 
 
 def autocorr(x):
-    result = np.correlate(x, x, mode='full')
-    return result[result.size/2:]
+
+	y = np.correlate(x-np.mean(x), x-np.mean(x), mode='full')
+	print(y)
+	indices = peakutils.indexes(y)
+
+	#result = peaks(np.correlate(x, x, mode='full'))
+
+	return len(indices)/2
+    #return result[result.size/2:]
 
 
 

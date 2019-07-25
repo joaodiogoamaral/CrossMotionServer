@@ -16,4 +16,4 @@ urlpatterns = [
     url(r'^show_uploaded/',views.show_uploaded,name = 'show_uploaded'),
     url(r'^feedback/(?P<video_name>[\w.]+)$',views.feedback,name='feedback'),
     url(r'^signup/',views.SignUp.as_view(),name = 'signup'),
-]
+] 

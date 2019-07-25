@@ -59,7 +59,17 @@ FEEDBACK_MATRIX = {
 
 	'GoodDepth' : 'Your squat depth is correct!.\n',
 
-	'SquatOk'  : 'Your squat was performed perfectly, good job!! \n'
+	'SquatOk'  : 'Your squat was performed perfectly, good job!! \n',
+
+	'kbswing': 'You tried to perform a Kettlebell Swing.\n',
+
+	'Goodkbswing' : 'Your Kettlebell Swing was well performed, good job!\n',
+
+	'BadkbSwing' : 'Your Kettlebell Swing can use some improvements... \n',
+
+	'kbswingTip1' : 'Keep your back straight and use your legs for the swing \n',
+
+	'kbswingTip2' : 'Raise your arms fully extended untill the Kettlebell bottom points to the ceiling. \n', 
 
 
 }
@@ -288,8 +298,8 @@ def run_crossmotion(filename):
 			result.append(FEEDBACK_MATRIX['Squat'])
 
 
-
-			if(comparison['depth'] == 'OK' and comparison['spine'] == 'OK'):
+			#return SPINE OK when in frontal plane
+			if(comparison['depth'] == 'OK' and comparison.get('spine','OK') == 'OK'):
 
 				result.append(FEEDBACK_MATRIX['SquatOk'])
 
@@ -301,9 +311,24 @@ def run_crossmotion(filename):
 			else:
 				result.append(FEEDBACK_MATRIX['GoodDepth'])
 
-			if(comparison['spine'] == 'NOK'):
+			if( (comparison.get('spine',None) != None) and comparison['spine'] == 'NOK'):
 
 				result.append(FEEDBACK_MATRIX['BadSpine'])
+
+
+		elif(comparison['exercise'] == 'kbswing'):
+
+			result.append(FEEDBACK_MATRIX['kbswing'])
+
+			if(comparison['depth'] == 'NOK'):
+				result.append(FEEDBACK_MATRIX['BadkbSwing'])
+				result.append(FEEDBACK_MATRIX['kbswingTip1'])
+				result.append(FEEDBACK_MATRIX['kbswingTip2'])
+			else:
+				result.append(FEEDBACK_MATRIX['Goodkbswing'])
+
+
+
 
 		else:
 

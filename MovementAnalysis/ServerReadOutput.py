@@ -10,6 +10,14 @@ import math
 import matplotlib.pyplot as plt
 import storeModel
 
+#from ServerCompareVideos import KB_SIMILARITY_THRESHOLD
+
+#This level of similarity is used to validate the repetition, not to identify the exercise
+# being the reason why it differs from the KB threshold defined in ServerCompareVideos 
+KB_SIMILARITY_THRESHOLD=0.7
+
+#the tolerance to which the plots will be compared 
+KB_DIFF_TOLERANCE = 1 # 1 degree of tolerance
 
 
 n2DKeypoints = 25
@@ -19,7 +27,7 @@ AMP=1000
 extractedFeatures = []
 validSquat = False
 
-
+#KB_SIMILARITY_THRESHOLD = KB_SIMILARITY_THRESHOLD
 #outputDir = sys.argv[1]
 
 
@@ -160,6 +168,70 @@ def readOutputs(outputDir):
 	return angles
 	#processOutputs.processOutputs(keypointMatrix)
 
+
+
+#no matter the plane, the similarity should be high(above threshold) for the KB swing, otherwise, it was not well performed.
+def checkKbSwing(similarity,results,plane,features):
+
+	print('\n\nKBSWING Similarity:\n\n')
+
+	print(similarity)
+	#for key,val in similarity.items():
+	#	print('\n\n\n\nKEY :' + key)
+	#	print(val)
+	temp = dict(similarity)
+
+	if(plane == 'left'):
+		temp.pop('rHipKnee','ola')
+		temp.pop('rKneeAnkle','ola')
+		temp.pop('rElbowrWrist','ola')
+		temp.pop('rShoulderHip','ola')
+		temp.pop('rShoulderrElbow','ola')
+
+	elif(plane == 'right'):
+		temp.pop('lShoulderlElbow','ola')
+		temp.pop('lShoulderHip','ola')
+		temp.pop('lElbowlWrist','ola')
+		temp.pop('lHipKnee','ola')
+		temp.pop('lKneeAnkle','ola')
+		
+		
+	if(plane!='front'):
+		if(similarity[min(temp,key=temp.get)] >= KB_SIMILARITY_THRESHOLD):
+			results['depth'] = 'OK'
+		else: 
+			results['depth'] = 'NOK'
+	else: 
+
+
+		print('\nMAX rShoulderrElbow:')
+		print(max(features['rShoulderrElbow']))
+		print('\nMIN rShoulderrElbow:')
+		print(min(features['rShoulderrElbow']))
+
+
+		print('\nMAX rElbowrWrist:')
+		print(max(features['rElbowrWrist']))
+		print('\nMIN rElbowrWrist:')
+		print(min(features['rElbowrWrist']))
+
+		print('\nMAX lShoulderlElbow:')
+		print(max(features['lShoulderlElbow']))
+		print('\nMIN lShoulderlElbow:')
+		print(min(features['lShoulderlElbow']))
+
+		print('\nMAX lElbowlWrist:')
+		print(max(features['lElbowlWrist']))
+		print('\nMIN lElbowlWrist:')
+		print(min(features['lElbowlWrist']))
+
+
+		results['depth'] = 'NOK'
+		#for front plane we need to analyze depth
+
+	return results
+
+
 def checkSquat(features,plane,results):
 
 	
@@ -222,8 +294,6 @@ def checkSquat(features,plane,results):
 			
 			results['depth'] = 'NOK'	
 
-
-
 	return results
 	
 	
@@ -255,8 +325,7 @@ def getFeatures(keypointMatrix):
 			'cHiplKnee' : [],
 			'cHiprKnee' : [],
 
-			'lKneelAnkle' : [],
-			'rKneerAnkle' : [],
+			
 
 			'cHiplShoulder' : [],
 			'cHiprShoulder' : [],
@@ -268,7 +337,7 @@ def getFeatures(keypointMatrix):
 			'lElbowlWrist' : [],
 			'lShoulderlElbow' : [],
 			'rShoulderrElbow' : [],
-			'lShoulderWrist' : []
+			#'lShoulderWrist' : []
 
 		}
 
@@ -288,34 +357,50 @@ def getFeatures(keypointMatrix):
 			features['lShoulderHip'] = [getAngle(-keypointMatrix['lShoulder'][i][0],-keypointMatrix['lHip'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lHip'][i][1]) for i in xrange(0,min(len(keypointMatrix['lShoulder']),len(keypointMatrix['lHip'])))]
 
 
-			#KB Swing specific features (not inverted in the X Axis)
-			features['lShoulderlElbow'] = [getAngle(keypointMatrix['lShoulder'][i][0],keypointMatrix['lElbow'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lElbow'][i][0]) for i in xrange(0,min(len(keypointMatrix['lElbow']),len(keypointMatrix['lShoulder'])))]
 
-			features['lElbowlWrist'] = [getAngle(keypointMatrix['lElbow'][i][0],keypointMatrix['lWrist'][i][0],keypointMatrix['lElbow'][i][1],keypointMatrix['lWrist'][i][0]) for i in xrange(0,min(len(keypointMatrix['lWrist']),len(keypointMatrix['lElbow'])))]
 
-			features['lShoulderWrist'] = [getAngle(keypointMatrix['lShoulder'][i][0],keypointMatrix['lWrist'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lWrist'][i][0]) for i in xrange(0,min(len(keypointMatrix['lShoulder']),len(keypointMatrix['lWrist'])))]
+		else:
+		#elif(plane == 'right'):
+		
+			features['lHipKnee'] = [getAngle(keypointMatrix['lHip'][i][0],keypointMatrix['lKnee'][i][0],keypointMatrix['lHip'][i][1],keypointMatrix['lKnee'][i][1]) for i in xrange(0,min(len(keypointMatrix['lKnee']),len(keypointMatrix['lHip'])))]
 
-		elif(plane == 'right'):
+
+			features['lKneeAnkle'] = [getAngle(keypointMatrix['lKnee'][i][0],keypointMatrix['lAnkle'][i][0],keypointMatrix['lKnee'][i][1],keypointMatrix['lAnkle'][i][1]) for i in xrange(0,min(len(keypointMatrix['lKnee']),len(keypointMatrix['lAnkle'])))]
+
+			features['lShoulderHip'] = [getAngle(keypointMatrix['lShoulder'][i][0],keypointMatrix['lHip'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lHip'][i][1]) for i in xrange(0,min(len(keypointMatrix['lShoulder']),len(keypointMatrix['lHip'])))]
+
+
+		
+		#KB Swing specific features (not inverted in the X Axis)
+		
+
+		features['lShoulderlElbow'] = [getAngle(keypointMatrix['lShoulder'][i][0],keypointMatrix['lElbow'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lElbow'][i][1]) for i in xrange(0,min(len(keypointMatrix['lElbow']),len(keypointMatrix['lShoulder'])))]
+
+		features['lElbowlWrist'] = [getAngle(keypointMatrix['lElbow'][i][0],keypointMatrix['lWrist'][i][0],keypointMatrix['lElbow'][i][1],keypointMatrix['lWrist'][i][1]) for i in xrange(0,min(len(keypointMatrix['lWrist']),len(keypointMatrix['lElbow'])))]
+
+		#features['lShoulderWrist'] = [getAngle(keypointMatrix['lShoulder'][i][0],keypointMatrix['lWrist'][i][0],keypointMatrix['lShoulder'][i][1],keypointMatrix['lWrist'][i][1]) for i in xrange(0,min(len(keypointMatrix['lShoulder']),len(keypointMatrix['lWrist'])))]
+	
+
+
+		#comprehensions
+
+		features['rHipKnee'] = [getAngle(keypointMatrix['rHip'][i][0],keypointMatrix['rKnee'][i][0],keypointMatrix['rHip'][i][1],keypointMatrix['rKnee'][i][1]) for i in xrange(0,min(len(keypointMatrix['rKnee']),len(keypointMatrix['rHip'])))]
+
+
+		features['rKneeAnkle'] = [getAngle(keypointMatrix['rKnee'][i][0],keypointMatrix['rAnkle'][i][0],keypointMatrix['rKnee'][i][1],keypointMatrix['rAnkle'][i][1]) for i in xrange(0,min(len(keypointMatrix['rKnee']),len(keypointMatrix['rAnkle'])))]
+
+		features['rShoulderHip'] = [getAngle(keypointMatrix['rShoulder'][i][0],keypointMatrix['rHip'][i][0],keypointMatrix['rShoulder'][i][1],keypointMatrix['rHip'][i][1]) for i in xrange(0,min(len(keypointMatrix['rShoulder']),len(keypointMatrix['rHip'])))]
+
+		features['rShoulderrElbow'] = [getAngle(keypointMatrix['rShoulder'][i][0],keypointMatrix['rElbow'][i][0],keypointMatrix['rShoulder'][i][1],keypointMatrix['rElbow'][i][1]) for i in xrange(0,min(len(keypointMatrix['rShoulder']),len(keypointMatrix['rElbow'])))]
+
+		features['rElbowrWrist'] = [getAngle(keypointMatrix['rElbow'][i][0],keypointMatrix['rWrist'][i][0],keypointMatrix['rElbow'][i][1],keypointMatrix['rWrist'][i][1]) for i in xrange(0,min(len(keypointMatrix['rElbow']),len(keypointMatrix['rWrist'])))]
+
 			
 
-			#comprehensions
-
-			features['rHipKnee'] = [getAngle(keypointMatrix['rHip'][i][0],keypointMatrix['rKnee'][i][0],keypointMatrix['rHip'][i][1],keypointMatrix['rKnee'][i][1]) for i in xrange(0,min(len(keypointMatrix['rKnee']),len(keypointMatrix['rHip'])))]
-
-
-			features['rKneeAnkle'] = [getAngle(keypointMatrix['rKnee'][i][0],keypointMatrix['rAnkle'][i][0],keypointMatrix['rKnee'][i][1],keypointMatrix['rAnkle'][i][1]) for i in xrange(0,min(len(keypointMatrix['rKnee']),len(keypointMatrix['rAnkle'])))]
-
-			features['rShoulderHip'] = [getAngle(keypointMatrix['rShoulder'][i][0],keypointMatrix['rHip'][i][0],keypointMatrix['rShoulder'][i][1],keypointMatrix['rHip'][i][1]) for i in xrange(0,min(len(keypointMatrix['rShoulder']),len(keypointMatrix['rHip'])))]
-
-			features['rShoulderrElbow'] = [getAngle(keypointMatrix['rShoulder'][i][0],keypointMatrix['rElbow'][i][0],keypointMatrix['rShoulder'][i][1],keypointMatrix['rElbow'][i][0]) for i in xrange(0,min(len(keypointMatrix['rShoulder']),len(keypointMatrix['rElbow'])))]
-
-			features['rElbowrWrist'] = [getAngle(keypointMatrix['rElbow'][i][0],keypointMatrix['rWrist'][i][0],keypointMatrix['rElbow'][i][1],keypointMatrix['rWrist'][i][0]) for i in xrange(0,min(len(keypointMatrix['rElbow']),len(keypointMatrix['rWrist'])))]
-
-			
 
 
 
-		elif(plane == 'front'):
+		if(plane == 'front'):
 			
 			for i,elem in enumerate(keypointMatrix['rKnee']):
 
@@ -327,13 +412,14 @@ def getFeatures(keypointMatrix):
 	
 		for key,i in features.items():
 			
-			if(len(i)==0):
+			if(len(i)<2):
 				print('\npopping:',key)
 				#print(key)
 				features.pop(key);
 				#normalizedFeatures.pop(key)
 			else:
 				print(key)
+				print('length:' + '   ' + str(key))
 				#normalizedFeatures.append(processOutputs.normalize(i))
 				
 				#normalizedFeatures[key] = processOutputs.normalize(i)

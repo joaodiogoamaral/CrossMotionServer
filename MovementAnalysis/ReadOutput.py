@@ -14,6 +14,7 @@ import storeModel
 
 n2DKeypoints = 25
 CONFIDENCE_THRESHOLD = 0.3
+KB_SIMILIARITY_THRESHOLD = 0.7
 AMP=1000
 extractedFeatures = []
 validSquat = False
@@ -158,6 +159,11 @@ def readOutputs(outputDir):
 	
 	return [angles,processOutputs.getCoherentMatrix(keypointMatrix)]
 	#processOutputs.processOutputs(keypointMatrix)
+
+#TODO
+
+
+
 
 def checkSquat(features,keys,plane):
 

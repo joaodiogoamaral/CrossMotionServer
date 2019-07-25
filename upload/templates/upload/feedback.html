@@ -1,7 +1,10 @@
-{% load staticfiles %}
-
-
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'upload/style.css' %}">
+<header>
 <h1>Feedback for {{video_name}}</h1>
+</header>
+
+<body>
 {% if directives %}
 	<ul>
 	{% for item in directives %}
@@ -23,3 +26,4 @@
    
 </video>
 {% endblock %}
+</body>
