@@ -70,7 +70,7 @@ def compareVideos(featureDict):
 		print(directory)
 
 
-		for j in os.listdir(directory): #iterate through planes inside a given movement
+		for j in os.listdir(directory): #iterate through models inside a given movement
 			
 			if(foundMatch == True):
 				break
@@ -96,7 +96,7 @@ def compareVideos(featureDict):
 						
 
 						
-						print("SQUAT: foundMatch!!!")
+						print("SQUAT: foundMatch!!!"+ j)
 						
 						foundMatch = True
 
@@ -132,12 +132,15 @@ def compareVideos(featureDict):
 					if(evaluate_movement(similarity,plane)):
 
 
+
+						print("KB: foundMatch!!!"+ j)
+
+						results['exercise'] = i
 						
-						print("\n\n\nKBSWING:foundMatch!!!\n\n\n\n")
 						
 						foundMatch = True
 
-						results['exercise'] = i
+						
 
 						getFeedBack(featureDict,results,similarity)
 
@@ -278,10 +281,10 @@ def compareFeatures(model,vid):
 			continue
 		
 
-		#print('\nCOMPARING KEY' + key)
+		print('\nCOMPARING KEY' + key)
 		sim[key] = getSimilarity(model[key],vid[key])
-
-	
+		print(sim[key])
+		
 	#print('Similarity matrix: \n')
 	#for key,val in sim.items():
 	#	print(key + ':' + str(val))
@@ -302,8 +305,8 @@ def getSimilarity(a,b):
 
 	coef=numpy.corrcoef(a,b)
 
-	print('COEF')
-	print(coef)
+	#print('COEF')
+	#print(coef)
 
 
 
