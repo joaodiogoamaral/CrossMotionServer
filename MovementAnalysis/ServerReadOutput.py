@@ -161,13 +161,13 @@ def readOutputs(outputDir):
 			keypointMatrix['RHeel'].append((xCords[24],yCords[24],conf[24]))
 
 	
-	angles = getFeatures(processOutputs.getCoherentMatrix(keypointMatrix))		
+	[rawAngles,angles] = getFeatures(processOutputs.getCoherentMatrix(keypointMatrix))		
 	#plotRawData(keypointMatrix['lHip'][1],keypointMatrix['lKnee'][1])		
 	
 
 
 	
-	return angles
+	return [rawAngles,angles]
 	#processOutputs.processOutputs(keypointMatrix)
 
 
@@ -437,14 +437,7 @@ def getFeatures(keypointMatrix):
 		print(normalizedFeatures.keys())
 
 
-		return normalizedFeatures
-
-
-def getDist(x1,x2,y1,y2):
-
-
-
-	return 
+		return [features,normalizedFeatures]
 
 
 

@@ -1,0 +1,26 @@
+
+header {
+	font : 300 20px/2 Helvetica, Verdana, sans-serif;
+	background: Cyan;
+	margin-top: auto;
+	padding: 10px 10px 10px 40px;
+}
+
+body {
+
+	font : 400 16px/2 Helvetica, Verdana, sans-serif;
+	background: grey;
+	margin: 0;
+    padding: 0;
+}
+
+
+li a {
+	font : 400 20px/2 Helvetica, Verdana, sans-serif;
+	color : Cyan ;
+	margin: 20;
+	margin-top: 100;
+	padding-top: 100;
+	margin-bottom: 20;
+}
+

@@ -29,20 +29,39 @@ SIMILARITY_TRESHOLD = 0.5
 
 
 
-def checkReps(vid):
+def checkReps(rawFeatures):
 
-	print('AUTOCORR:\n\n')
-	for key,val in vid.items():
+	
+
+
+	fs = 1
+
+
+	print('\n\n\n\n\nCheckREPS')
+
+	for key,val in rawFeatures.items():
+
+
+
+
 		if(key=='plane'):
 			continue
-		print(key)
-		print(processOutputs.autocorr(val))
-		print('\n\n\n')
+		
+    
+    	
+    # Some other interpolation based on neighboring points might be better.
+    # Spline, cubic, whatever
+	
+
+
+	print(key)
+	print(processOutputs.autocorr(val))
+	print('\n\n\n')
 
 #array of directories
-def compareVideos(featureDict):
+def compareVideos(rawFeatureDict,featureDict):
 
-
+	checkReps(rawFeatureDict)
 
 	plane = featureDict['plane']
 
@@ -448,4 +467,12 @@ def plotFeatures(model,vid):
 if __name__ == "__main__":
 	
 	print(sys.argv)
-	compareVideos(ServerReadOutput.readOutputs(sys.argv[1]))
+
+	[rawFeatures,features] = ServerReadOutput.readOutputs(sys.argv[1])
+
+	print(rawFeatures)
+
+
+	#compareVideos(rawFeatures,features)
+
+	checkReps(sys.argv[1])

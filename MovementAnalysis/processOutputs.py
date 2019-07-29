@@ -16,13 +16,18 @@ N_PTS = 10000 #Number of points for time vectors
 
 def autocorr(x):
 
+	print('AUTOCORR')
 	y = np.correlate(x-np.mean(x), x-np.mean(x), mode='full')
 	print(y)
 	indices = peakutils.indexes(y)
 
+	print(indices)
+
+
+	print(len(indices)/2)
 	#result = peaks(np.correlate(x, x, mode='full'))
 
-	return len(indices)/2
+	return len(indices)/2 - 1
     #return result[result.size/2:]
 
 

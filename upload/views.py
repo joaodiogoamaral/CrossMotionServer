@@ -271,7 +271,9 @@ def run_crossmotion(filename):
 	outputPath = os.path.splitext(SERVER_DATA + OP_OUTPUT_DIR+username+'/'+filename)[0]
 
 
-	output = ServerReadOutput.readOutputs(outputPath)
+	[rawOutput,output] = ServerReadOutput.readOutputs(outputPath)
+
+	#ServerCompareVideos.checkReps(rawOutput)
 
 	result = []
 
@@ -289,7 +291,7 @@ def run_crossmotion(filename):
 
 
 
-		comparison=ServerCompareVideos.compareVideos(output)
+		comparison=ServerCompareVideos.compareVideos(rawOutput,output)
 
 
 
