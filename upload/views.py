@@ -27,7 +27,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate,login,logout
 
 
-from models import Document,VideoEntry,Feedback
+from models import Document,VideoEntry,Feedback,Rep
 from forms import DocumentForm
 
 
@@ -187,24 +187,40 @@ def upload_video(request):
 		print('op_output_path:'+op_output_path)
 
 
-		feedback = run_crossmotion(os.path.basename(filename))
+		feedbackEntries = run_crossmotion(os.path.basename(filename))
 
-		videEntry= VideoEntry(username=username,videoUploaded=os.path.basename(filename),processedVideoPath=username+'/'+videoname+'/'+os.path.basename(filename))
+		videEntry= VideoEntry(username=username,videoUploaded=os.path.basename(filename),repCount=len(feedbackEntries),processedVideoPath=username+'/'+videoname+'/'+os.path.basename(filename))
 
-		for i in feedback:
+		repNo = 0
+		for i in feedbackEntries:
+			#create new class Rep
+			rep = Rep(id=repNo+1)
 
-			entry = Feedback(feedback=i)
-			entry.save()
-			print('Entry to add:')
-			print(entry.feedback)
+			repno = repNo + 1 
+
+			for j in i:
+			#create new class feedback
+				feedback = Feedback(feedback=j)
+				feedback.save()
+				
+				rep.save()
+
+				rep.feedback.add(feedback)
+
+			rep.save()
 			videEntry.save()
-			videEntry.feedback.add(entry)
+			videEntry.rep.add(rep)
+		#print('Entry to add:')
+		#print(videEntry)
+		
+
+		print('REPCOUNT: ' + str(videEntry.repCount))
 
 			
 
 		
 		
-		videEntry.save()
+		
 		# print(videEntry)
 
 
@@ -275,7 +291,7 @@ def run_crossmotion(filename):
 
 	#ServerCompareVideos.checkReps(rawOutput)
 
-	result = []
+	
 
 	if(len(output.keys())==1):
 
@@ -293,55 +309,58 @@ def run_crossmotion(filename):
 
 		comparison=ServerCompareVideos.compareVideos(rawOutput,output)
 
-
-
-		if(comparison['exercise'] == 'squat'):
-
-			result.append(FEEDBACK_MATRIX['Squat'])
-
-
-			#return SPINE OK when in frontal plane
-			if(comparison['depth'] == 'OK' and comparison.get('spine','OK') == 'OK'):
-
-				result.append(FEEDBACK_MATRIX['SquatOk'])
-
-				return result
+		feedbackEntries = []
+		for i in comparison:
 			
-			if(comparison['depth'] == 'NOK'):
+			result=[]
 
-				result.append(FEEDBACK_MATRIX['BadDepth'])
+			if(i['exercise'] == 'squat'):
+
+				result.append(FEEDBACK_MATRIX['Squat'])
+
+
+				#return SPINE OK when in frontal plane
+				if(i['depth'] == 'OK' and i.get('spine','OK') == 'OK'):
+
+					result.append(FEEDBACK_MATRIX['SquatOk'])
+
+					
+				
+				if(i['depth'] == 'NOK'):
+
+					result.append(FEEDBACK_MATRIX['BadDepth'])
+				else:
+					result.append(FEEDBACK_MATRIX['GoodDepth'])
+
+				if( (i.get('spine',None) != None) and i['spine'] == 'NOK'):
+
+					result.append(FEEDBACK_MATRIX['BadSpine'])
+
+
+			elif(i['exercise'] == 'kbswing'):
+
+				result.append(FEEDBACK_MATRIX['kbswing'])
+
+				if(i['depth'] == 'NOK'):
+					result.append(FEEDBACK_MATRIX['BadkbSwing'])
+					result.append(FEEDBACK_MATRIX['kbswingTip1'])
+					result.append(FEEDBACK_MATRIX['kbswingTip2'])
+				else:
+					result.append(FEEDBACK_MATRIX['Goodkbswing'])
+
+
+
+
 			else:
-				result.append(FEEDBACK_MATRIX['GoodDepth'])
 
-			if( (comparison.get('spine',None) != None) and comparison['spine'] == 'NOK'):
+				result.append(FEEDBACK_MATRIX['UnknownExercise'])
 
-				result.append(FEEDBACK_MATRIX['BadSpine'])
-
-
-		elif(comparison['exercise'] == 'kbswing'):
-
-			result.append(FEEDBACK_MATRIX['kbswing'])
-
-			if(comparison['depth'] == 'NOK'):
-				result.append(FEEDBACK_MATRIX['BadkbSwing'])
-				result.append(FEEDBACK_MATRIX['kbswingTip1'])
-				result.append(FEEDBACK_MATRIX['kbswingTip2'])
-			else:
-				result.append(FEEDBACK_MATRIX['Goodkbswing'])
+			feedbackEntries.append(result)
 
 
+		print(feedbackEntries)
 
-
-		else:
-
-			result.append(FEEDBACK_MATRIX['UnknownExercise'])
-
-
-
-
-		print(result)
-
-		return result
+		return feedbackEntries
 
 
 

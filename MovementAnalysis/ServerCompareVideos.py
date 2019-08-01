@@ -29,17 +29,21 @@ SIMILARITY_TRESHOLD = 0.5
 
 
 
-def checkReps(rawFeatures):
-
-	
-
-
-	fs = 1
-
+def checkReps(rawFeatures,featureDict):
 
 	print('\n\n\n\n\nCheckREPS')
 
-	for key,val in rawFeatures.items():
+	result = []
+
+
+
+	for key,val in featureDict.items():
+		if(key == 'plane'):
+			continue
+		print('KEY:' + key)
+		print(processOutputs.autocorr(val))
+	
+	for key,val in featureDict.items():
 
 
 
@@ -47,156 +51,236 @@ def checkReps(rawFeatures):
 		if(key=='plane'):
 			continue
 		
+		print('LENGTH:' + str(len(val)) + '\n\n\n\n\n')	
     
     	
     # Some other interpolation based on neighboring points might be better.
     # Spline, cubic, whatever
+	key2analyze = ''
+	if(featureDict['plane'] == 'right' or featureDict['plane'] == 'front'):
+		key2analyze='rHipKnee'
+	else:
+		key2analyze='lHipKnee'
+		
+
+	nReps = processOutputs.autocorr(featureDict[key2analyze])
+
+	print('NREPS: ' + str(nReps))
+
+	foundMatch = False
+
 	
 
+	incr = 10000/nReps
 
-	print(key)
-	print(processOutputs.autocorr(val))
-	print('\n\n\n')
+
+	#if(nReps > 1):
+	#	nReps = xrange(0,len(repStarts)-1)
+	#else:
+	#	return [featureDict]
+
+	for idx in xrange(0,nReps):
+
+
+		print('\n\nREPNO:' + str(idx)+ '\n\n\n\n')
+
+		rep2Compare = {} # empty dict
+
+		for key,val in featureDict.items():
+
+			if(key == 'plane'):
+				rep2Compare['plane'] = key 
+				continue
+			print('KEY: ' + key + str(len(val)))
+
+			#print(len(val[repStarts[idx]:repStarts[idx+1]]))
+
+
+			#if(len(val[repStarts[idx]:repStarts[idx+1]])>2):
+			if((idx+1) * incr < len(val)):
+				rep2Compare[key] = processOutputs.normalize(val[(idx*incr):((idx+1)*incr)])
+
+			else:
+				rep2Compare[key] = processOutputs.normalize(val[(idx*incr):])
+			#	continue
+			print(len(val[(idx*incr):((idx+1)*incr)]))
+
+		result.append(rep2Compare)
+
+
+
+	return result
+
+		
+		
+			
+
+
+
+
+
 
 #array of directories
 def compareVideos(rawFeatureDict,featureDict):
 
-	checkReps(rawFeatureDict)
+	
+
+
+	reps = checkReps(rawFeatureDict,featureDict)
+
+	
+	
+	ret = []
 
 	plane = featureDict['plane']
 
-	results = {}
 
-	foundMatch = False
+
+	for rep in reps:
+
+		vid = dict(rep)
 	
-	print('compareVideos:\n\n\n\n\n\n')
 
-	#print(featureDict.keys())
-	modelsCompared = 0
-	vid = dict(featureDict)
+		results = {}
 
-	#checkReps(vid)
-	#exit(0)
 
-	maxMean = 0
-	exercise = ''
-	for i in os.listdir(MODEL_FOLDER): #iterate through movements
+
+
+		foundMatch = False
+	
+
+
+		print('compareVideos:\n\n')
+
+		#print(featureDict.keys())
+		modelsCompared = 0
+	
+
+		#checkReps(vid)
+		#exit(0)
+
+		maxMean = 0
+		exercise = ''
+		for i in os.listdir(MODEL_FOLDER): #iterate through movements
 
 		
-		directory=os.path.join(os.getcwd(),MODEL_FOLDER,i+'/',plane)
+			directory=os.path.join(os.getcwd(),MODEL_FOLDER,i+'/',plane)
 
 
-		print(directory)
+			print(directory)
 
 
-		for j in os.listdir(directory): #iterate through models inside a given movement
-			
 			if(foundMatch == True):
 				break
 
-			if(i == 'squat'):
+
+			for j in os.listdir(directory): #iterate through models inside a given movement
+			
+				
+				if(i == 'squat'):
 				
 				
 
 				
-				print('\n\n\n\n\n\n\n\n\n\nCOMPARING SQUATS\n\n')
-				with open(os.path.join(directory,j)) as jsonFile:
+					print('\n\nCOMPARING SQUATS\n\n')
+					with open(os.path.join(directory,j)) as jsonFile:
 					
 
-					model = json.load(jsonFile)
+						model = json.load(jsonFile)
 					
 					#plotFeatures(model,vid)
 
 
-					similarity = compareFeatures(model,vid)
+						similarity = compareFeatures(model,vid)
 					
 					
-					if(evaluate_movement(similarity,plane)):
+						if(evaluate_squat(similarity,plane)):
 						
 
 						
-						print("SQUAT: foundMatch!!!"+ j)
+							print("SQUAT: foundMatch!!!"+ j)
 						
-						foundMatch = True
+							foundMatch = True
 
-						results['exercise'] = i
+							results['exercise'] = i
 
-						getFeedBack(featureDict,results,similarity)
+							getFeedBack(featureDict,results,similarity)
 
-						break
+							break
 						
-					else:
+						else:
 						
-						continue
+							continue
 			
 			
 
 
-			elif(i=='kbswing'):
+				elif(i=='kbswing'):
 				
 				
 
-				print('\n\n\n\n\nCOMPARING KBSWINGS\n\n\n\n\n')
-				with open(os.path.join(directory,j)) as jsonFile:
+					print('\n\nCOMPARING KBSWINGS\n\n')
+					with open(os.path.join(directory,j)) as jsonFile:
 					
 
-					model = json.load(jsonFile)
+						model = json.load(jsonFile)
 					#vid = dict(featureDict)
-					similarity = compareFeatures(model,vid)
+						similarity = compareFeatures(model,vid)
 
 
-					minim = min( similarity, key = similarity.get)
+						minim = min( similarity, key = similarity.get)
 					#plotFeatures(model,vid)
 
-					if(evaluate_movement(similarity,plane)):
+						if(evaluate_kb(similarity,plane)):
 
 
 
-						print("KB: foundMatch!!!"+ j)
+							print("KB: foundMatch!!!"+ j)
 
-						results['exercise'] = i
+							results['exercise'] = i
 						
 						
-						foundMatch = True
+							foundMatch = True
 
 						
 
-						getFeedBack(featureDict,results,similarity)
+							getFeedBack(featureDict,results,similarity)
 
-						break
+							break
 					
-					else:
+						else:
 						
-						continue
+							continue
 
 
 
-			else:
-				continue #irrelevant folder 
+				else:
+					continue #irrelevant folder 
 
 
 			
 
 
-	if(foundMatch==False):
-		results['exercise'] = 'NOK'
+		if(foundMatch==False):
+			results['exercise'] = 'NOK'
 
-	print(results)
+		
 
-
-
-
-	print('exercise:' + exercise)
-	print(maxMean)
+		ret.append(results)
 
 
-
-	return results
-
-
+	#print('exercise:' + exercise)
+	#print(maxMean)
 
 
-def evaluate_movement(similarity,plane):
+	print('NREPS BEFORE COMPARISON:' +  str(len(reps)))
+
+	return ret
+
+
+
+
+def evaluate_squat(similarity,plane):
 
 
 	temp={}
@@ -206,7 +290,7 @@ def evaluate_movement(similarity,plane):
 		temp['lHipKnee'] = similarity['lHipKnee']
 		temp['lShoulderHip'] = similarity['lShoulderHip']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0 or minKey == 'lHipKnee'):
+		if(temp[minKey] > 0.2 or (minKey == 'lHipKnee' and temp['lKneeAnkle'] > 0.5 and temp['lShoulderHip'] > 0.5 )):
 			return True
 		else:
 			return False
@@ -217,7 +301,7 @@ def evaluate_movement(similarity,plane):
 		temp['rHipKnee'] = similarity['rHipKnee']
 		temp['rShoulderHip'] = similarity['rShoulderHip']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0 or minKey == 'rHipKnee'):
+		if(temp[minKey] > 0.2 or (minKey == 'rHipKnee' and temp['rKneeAnkle'] > 0.5 and temp['rShoulderHip'] > 0.5 )):
 			return True
 		else:
 			return False
@@ -227,21 +311,67 @@ def evaluate_movement(similarity,plane):
 
 		temp['rKneeAnkle'] = similarity['rKneeAnkle']
 		temp['rHipKnee'] = similarity['rHipKnee']
-		temp['rShoulderHip'] = similarity['rShoulderHip']
+		#temp['rShoulderHip'] = similarity['rShoulderHip']
 		temp['lKneeAnkle'] = similarity['lKneeAnkle']
 		temp['lHipKnee'] = similarity['lHipKnee']
-		temp['lShoulderHip'] = similarity['lShoulderHip']
+		#temp['lShoulderHip'] = similarity['lShoulderHip']
 
 		minKey = min(temp,key=temp.get)
 
 
-		if( (temp[minKey] > 0 or minKey == 'rHipKnee' or minKey == 'lHipKnee' ) and 
-			(temp['lKneeAnkle'] > 0 and temp['rKneeAnkle'] > 0)  ):
+
+
+		if( temp[minKey] > 0 or ( (minKey == 'rHipKnee' or minKey == 'lHipKnee' ) and 
+			(temp['lKneeAnkle'] > 0.4 and temp['rKneeAnkle'] > 0.4) ) ):
 			return True
 		else:
 			return False
 
 
+
+
+def evaluate_kb(similarity,plane):
+
+
+	temp={}
+
+	if(plane == 'left'):
+		temp['lKneeAnkle'] = similarity['lKneeAnkle']
+		temp['lHipKnee'] = similarity['lHipKnee']
+		#temp['lShoulderHip'] = similarity['lShoulderHip']
+		minKey = min(temp,key=temp.get)
+		if(temp[minKey] > 0.0):
+			return True
+		else:
+			return False
+
+	elif(plane == 'right'):
+
+		temp['rKneeAnkle'] = similarity['rKneeAnkle']
+		temp['rHipKnee'] = similarity['rHipKnee']
+		temp['rShoulderHip'] = similarity['rShoulderHip']
+		minKey = min(temp,key=temp.get)
+		if(temp[minKey] > 0.0 ):
+			return True
+		else:
+			return False
+
+	else:#front plane
+
+
+		temp['rKneeAnkle'] = similarity['rKneeAnkle']
+		temp['rHipKnee'] = similarity['rHipKnee']
+		temp['lKneeAnkle'] = similarity['lKneeAnkle']
+		temp['lHipKnee'] = similarity['lHipKnee']
+		
+
+		minKey = min(temp,key=temp.get)
+
+
+		if( temp[minKey] > 0.0):
+			return True
+		else:
+			return False
 
 
 def print_mean(similarity):
@@ -267,8 +397,8 @@ def compareFeatures(model,vid):
 
 	#pop plane
 	
-	print(vid.keys())
-	print(model.keys())
+	#print(vid.keys())
+	#print(model.keys())
 
 	#model.pop('plane')
 	#vid.pop('plane')
@@ -300,13 +430,13 @@ def compareFeatures(model,vid):
 			continue
 		
 
-		print('\nCOMPARING KEY' + key)
+		#print('\nCOMPARING KEY' + key)
 		sim[key] = getSimilarity(model[key],vid[key])
-		print(sim[key])
+		#print(sim[key])
 		
-	#print('Similarity matrix: \n')
-	#for key,val in sim.items():
-	#	print(key + ':' + str(val))
+	print('Similarity matrix: \n')
+	for key,val in sim.items():
+		print(key + ':' + str(val))
 
 	return sim	
 		
@@ -468,9 +598,9 @@ if __name__ == "__main__":
 	
 	print(sys.argv)
 
-	[rawFeatures,features] = ServerReadOutput.readOutputs(sys.argv[1])
+	#[rawFeatures,features] = ServerReadOutput.readOutputs(sys.argv[1])
 
-	print(rawFeatures)
+	#print(rawFeatures)
 
 
 	#compareVideos(rawFeatures,features)

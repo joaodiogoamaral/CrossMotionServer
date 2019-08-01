@@ -18,16 +18,18 @@ def autocorr(x):
 
 	print('AUTOCORR')
 	y = np.correlate(x-np.mean(x), x-np.mean(x), mode='full')
-	print(y)
+	#modes : valid,same,full 
+	#y = np.correlate(x, x, mode='same')
+	#print(y)
 	indices = peakutils.indexes(y)
 
-	print(indices)
+	print(len(indices))
 
 
-	print(len(indices)/2)
+	#print(indices[0:(len(indices)/2)])
 	#result = peaks(np.correlate(x, x, mode='full'))
 
-	return len(indices)/2 - 1
+	return len(indices)/2
     #return result[result.size/2:]
 
 
@@ -86,8 +88,8 @@ def getPlane(keypointMatrix):
 
 def normalize(vector):
 
-
-
+	#print('NORMALIZE\n\n\n\n')
+	#print(len(vector))
 
 	time = np.linspace(0,len(vector),num=N_PTS)
 	#print(len(time))

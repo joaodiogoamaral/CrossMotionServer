@@ -431,6 +431,7 @@ def getFeatures(keypointMatrix):
 		
 		
 		normalizedFeatures['plane'] = plane
+		features['plane'] = 'plane'
 		
 
 		print('readOutputs \n\n\n\n\n\n\n\n\n\n\n')

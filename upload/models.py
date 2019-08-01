@@ -19,11 +19,17 @@ class Feedback(models.Model):
 	feedback = models.CharField(max_length=200)
 
 
+class Rep(models.Model):
+
+	feedback = models.ManyToManyField(Feedback)
+
+
 class VideoEntry(models.Model):
 
 	username = models.CharField(max_length=32)
 	videoUploaded = models.CharField(max_length=50)
-	feedback = models.ManyToManyField(Feedback)
+	repCount = models.IntegerField()
+	rep = models.ManyToManyField(Rep)
 	processedVideoPath = models.CharField(max_length=300,default='') #to store the OP processed vídeo
 
 
