@@ -1,29 +1,79 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'upload/style.css' %}">
 <header>
-<h1>Feedback for {{video_name}}</h1>
+<h2>Feedback for video {{video_name}}</h2>
 </header>
 
+
+
 <body>
-{% if directives %}
+
+
+<table style="width: 100%">
+	<tr>
+		<th><h1>Feedback</h1></th><th><h1>Video</h1></th>
+	</tr>
+	<tr>
+		<th style="vertical-align: top;">
+			<table>
+				<th style="text-align: left;">
+				{% if reps %}
+
+
+				{% for f in repTips %}
+							
+						<tr>
+						<h2 style="background-color: Cyan;
+							text-align: center;"> Rep {{forloop.counter}} </h2>
+
+						</tr>
+							<tr>
+								{% for hint in f %}
+								
+									<li style="text-align: left; padding-left: 8px;
+									padding-bottom: 8px">{{hint}}</li>
+								
+								{% endfor %}
+							</tr>
+
+						{% empty %}
+						<h3>EMPTY</h3>
+					{% endfor %}
+				{% endif %}
+				</th>
+			</table>
+		</td>
+		<th style="vertical-align: top;">
+			<video name='video' controls autoplay width='50%' height='40%'>
+
+			    <source src="/{{MEDIA_URL}}ProcessedVideos/{{op_output_path}}" type="video/mp4"></source>
+			   
+			</video>
+		</th>
+	</tr>
+	
+</table>
+
+
+
+
+
+
+<!--
+{% if rlist %}
 	<ul>
-	{% for item in directives %}
-	<!--<li>{{item}}</>-->
+	{% for item in rlist %}
+	<li>{{item}}</>-->
 
 	<!--<li><a href="">{{item}}</a></li>--> 
-	<li>{{item}}</li>
+<!--	<li>{{item}}</li>
 	
 	{% endfor %}
 	</ul>
 {% endif %}
 
 {% block contents %}
-
-<!--https://192.168.0.100:8000/ProcessedVideos/joao/badsq2r/badsq2r.mp4-->
-<video name='video' controls autoplay width='50%' height='40%'>
-
-    <source src="/{{MEDIA_URL}}ProcessedVideos/{{op_output_path}}" type="video/mp4"></source>
-   
-</video>
 {% endblock %}
+https://192.168.0.100:8000/ProcessedVideos/joao/badsq2r/badsq2r.mp4-->
 </body>
+

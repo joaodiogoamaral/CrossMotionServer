@@ -1,4 +1,6 @@
-
+h1,h2,h3 {
+font : Helvetica,Verdama,sans-serif;
+}
 header {
 	font : 300 20px/2 Helvetica, Verdana, sans-serif;
 	background: Cyan;
@@ -8,19 +10,42 @@ header {
 
 body {
 
-	font : 400 16px/2 Helvetica, Verdana, sans-serif;
-	background: grey;
+	font : 300 16px/2 Helvetica, Verdana, sans-serif;
+	background: #ddd;
 	margin: 0;
-    padding: 0;
+    padding-top: 0px 0px 0px 0px;
 }
 
 
-li a {
+li,a{
 	font : 400 20px/2 Helvetica, Verdana, sans-serif;
-	color : Cyan ;
-	margin: 20;
-	margin-top: 100;
-	padding-top: 100;
-	margin-bottom: 20;
+	color : Black ;
+	margin: 8;
+	margin-top: 8;
+	text-decoration: none;
+	padding-left:8;
+	
+	text-align: left;
+	
 }
 
+table{
+	padding-top: 20px;
+	margin-left: 8px;
+}
+
+td, th{
+  
+  text-align: center;
+  padding-left: 8px ;
+  padding-right: 0px;
+  padding-top: 8px;
+}
+
+tr {
+text-align: left;
+padding-left: 8px ;
+padding-right: 8px;
+
+
+}

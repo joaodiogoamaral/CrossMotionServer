@@ -37,17 +37,28 @@ runOpenPose()
 	#with video
 	CMD=$(ffprobe -loglevel error -select_streams v:0 -show_entries stream_tags=rotate -of default=nw=1:nk=1 -i "$1")
 
+	if [[ "$3" -eq "NOOUTPUT" ]];then
+		if [[ "$CMD" -eq "90" ]]; then
+			echo "Video is rotated"
 
-	
+			./build/examples/openpose/openpose.bin --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 --frame_rotate 270
 
-	if [[ "$CMD" -eq "90" ]]; then
+		else
+			./build/examples/openpose/openpose.bin --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 #--frame_rotate 270 #--disable_blending true
+		fi
+	else
+		if [[ "$CMD" -eq "90" ]]; then
 		echo "Video is rotated"
 
 		./build/examples/openpose/openpose.bin --write_video $3 --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 --frame_rotate 270
 
-	else
+		else
 		./build/examples/openpose/openpose.bin --write_video $3 --number_people_max 1 --video $1 --write_json $2 --keypoint_scale 4 #--frame_rotate 270 #--disable_blending true
+		fi
 	fi
+	
+
+	
 	cd $SCRIPT_DIR
 }
 
@@ -128,7 +139,7 @@ case "$1" in
 			VIDEO_ABS_PATH="$(pwd)/$VIDEO_RELATIVE_PATH"
 			checkVideoExists $VIDEO_ABS_PATH
 			OUTPUT_DIR="$(pwd)/temp/vid$((i-1))"
-			runOpenPose $VIDEO_ABS_PATH $OUTPUT_DIR
+			runOpenPose $VIDEO_ABS_PATH $OUTPUT_DIR "NOOUTPUT"
 			ARG="$ARG $OUTPUT_DIR"
 		done
 

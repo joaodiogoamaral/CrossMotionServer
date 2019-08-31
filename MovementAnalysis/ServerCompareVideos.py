@@ -13,6 +13,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy import spatial
 
 
+from processOutputs import N_PTS
+
 
 #import file
 import json
@@ -21,6 +23,7 @@ import os
 from numpy import dot
 from numpy.linalg import norm
 from scipy import spatial
+import storeModel
 
 
 MODEL_FOLDER = os.path.dirname(os.path.realpath(__file__))+'/models/'
@@ -41,7 +44,7 @@ def checkReps(rawFeatures,featureDict):
 		if(key == 'plane'):
 			continue
 		print('KEY:' + key)
-		print(processOutputs.autocorr(val))
+		#print(processOutputs.autocorr(val))
 	
 	for key,val in featureDict.items():
 
@@ -65,21 +68,21 @@ def checkReps(rawFeatures,featureDict):
 
 	nReps = processOutputs.autocorr(featureDict[key2analyze])
 
+
+
+	if(len(nReps) == 0 ):
+		result.append(featureDict)
+		return result
+
 	print('NREPS: ' + str(nReps))
 
 	foundMatch = False
 
+
 	
-
-	incr = 10000/nReps
-
-
-	#if(nReps > 1):
-	#	nReps = xrange(0,len(repStarts)-1)
-	#else:
-	#	return [featureDict]
-
-	for idx in xrange(0,nReps):
+	repStart = 0
+	
+	for idx in xrange(0,len(nReps)+1):
 
 
 		print('\n\nREPNO:' + str(idx)+ '\n\n\n\n')
@@ -88,22 +91,32 @@ def checkReps(rawFeatures,featureDict):
 
 		for key,val in featureDict.items():
 
+
+			print('REPSTART='+str(repStart)+'\n')
+
 			if(key == 'plane'):
-				rep2Compare['plane'] = key 
+				rep2Compare['plane'] = val 
 				continue
 			print('KEY: ' + key + str(len(val)))
 
 			#print(len(val[repStarts[idx]:repStarts[idx+1]]))
 
 
-			#if(len(val[repStarts[idx]:repStarts[idx+1]])>2):
-			if((idx+1) * incr < len(val)):
-				rep2Compare[key] = processOutputs.normalize(val[(idx*incr):((idx+1)*incr)])
-
+			if(idx < (len(nReps))):
+				rep2Compare[key] = processOutputs.normalize(val[repStart:nReps[idx]])
 			else:
-				rep2Compare[key] = processOutputs.normalize(val[(idx*incr):])
-			#	continue
-			print(len(val[(idx*incr):((idx+1)*incr)]))
+				rep2Compare[key] = processOutputs.normalize(val[repStart:])
+
+
+			
+			print(len(rep2Compare[key]))
+			#ServerReadOutput.plotRawData(rep2Compare[key])
+		if(idx < len(nReps)):
+			repStart = nReps[idx]	
+			
+
+
+
 
 		result.append(rep2Compare)
 
@@ -128,7 +141,9 @@ def compareVideos(rawFeatureDict,featureDict):
 
 	reps = checkReps(rawFeatureDict,featureDict)
 
-	
+	if(len(reps) == 0):
+		
+		return []
 	
 	ret = []
 
@@ -204,7 +219,8 @@ def compareVideos(rawFeatureDict,featureDict):
 
 							results['exercise'] = i
 
-							getFeedBack(featureDict,results,similarity)
+							returnStat= getFeedBack(rep,results,similarity)
+
 
 							break
 						
@@ -244,7 +260,11 @@ def compareVideos(rawFeatureDict,featureDict):
 
 						
 
-							getFeedBack(featureDict,results,similarity)
+							getFeedBack(rep,results,similarity)
+
+							#if(results['depth'] == 'OK'):
+							#	storeModel.storeMovement()
+
 
 							break
 					
@@ -289,8 +309,9 @@ def evaluate_squat(similarity,plane):
 		temp['lKneeAnkle'] = similarity['lKneeAnkle']
 		temp['lHipKnee'] = similarity['lHipKnee']
 		temp['lShoulderHip'] = similarity['lShoulderHip']
+		temp['lShoulderlElbow'] = similarity['lShoulderlElbow']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0.2 or (minKey == 'lHipKnee' and temp['lKneeAnkle'] > 0.5 and temp['lShoulderHip'] > 0.5 )):
+		if(temp['lKneeAnkle'] > 0.6 and temp['lShoulderHip'] > 0.6 and temp[minKey] > -0.4 ):
 			return True
 		else:
 			return False
@@ -301,7 +322,7 @@ def evaluate_squat(similarity,plane):
 		temp['rHipKnee'] = similarity['rHipKnee']
 		temp['rShoulderHip'] = similarity['rShoulderHip']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0.2 or (minKey == 'rHipKnee' and temp['rKneeAnkle'] > 0.5 and temp['rShoulderHip'] > 0.5 )):
+		if(temp['rKneeAnkle'] > 0.6 and temp['rShoulderHip'] > 0.6 and temp['rHipKnee'] > -0.4):
 			return True
 		else:
 			return False
@@ -311,18 +332,17 @@ def evaluate_squat(similarity,plane):
 
 		temp['rKneeAnkle'] = similarity['rKneeAnkle']
 		temp['rHipKnee'] = similarity['rHipKnee']
-		#temp['rShoulderHip'] = similarity['rShoulderHip']
+		
 		temp['lKneeAnkle'] = similarity['lKneeAnkle']
 		temp['lHipKnee'] = similarity['lHipKnee']
-		#temp['lShoulderHip'] = similarity['lShoulderHip']
-
+		temp['cHiprKnee'] = similarity['cHiprKnee']
+		temp['cHiplKnee'] = similarity['cHiplKnee']
 		minKey = min(temp,key=temp.get)
 
+		print(temp)
 
 
-
-		if( temp[minKey] > 0 or ( (minKey == 'rHipKnee' or minKey == 'lHipKnee' ) and 
-			(temp['lKneeAnkle'] > 0.4 and temp['rKneeAnkle'] > 0.4) ) ):
+		if(	temp['lKneeAnkle'] > 0.6 and temp['rKneeAnkle'] > 0.6 and temp['rHipKnee'] > 0.6 ):
 			return True
 		else:
 			return False
@@ -340,7 +360,7 @@ def evaluate_kb(similarity,plane):
 		temp['lHipKnee'] = similarity['lHipKnee']
 		#temp['lShoulderHip'] = similarity['lShoulderHip']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0.0):
+		if(temp[minKey] > 0.5):
 			return True
 		else:
 			return False
@@ -349,9 +369,9 @@ def evaluate_kb(similarity,plane):
 
 		temp['rKneeAnkle'] = similarity['rKneeAnkle']
 		temp['rHipKnee'] = similarity['rHipKnee']
-		temp['rShoulderHip'] = similarity['rShoulderHip']
+		#temp['rShoulderHip'] = similarity['rShoulderHip']
 		minKey = min(temp,key=temp.get)
-		if(temp[minKey] > 0.0 ):
+		if(temp[minKey] > 0.5 ):
 			return True
 		else:
 			return False
@@ -360,15 +380,18 @@ def evaluate_kb(similarity,plane):
 
 
 		temp['rKneeAnkle'] = similarity['rKneeAnkle']
-		temp['rHipKnee'] = similarity['rHipKnee']
+		
 		temp['lKneeAnkle'] = similarity['lKneeAnkle']
 		temp['lHipKnee'] = similarity['lHipKnee']
+		temp['rHipKnee'] = similarity['rHipKnee']
+
 		
+		#temp['cHiplKnee'] = similarity['cHiplKnee']
 
 		minKey = min(temp,key=temp.get)
 
 
-		if( temp[minKey] > 0.0):
+		if( temp[minKey] > 0.5):
 			return True
 		else:
 			return False
@@ -399,6 +422,8 @@ def compareFeatures(model,vid):
 	
 	#print(vid.keys())
 	#print(model.keys())
+	
+
 
 	#model.pop('plane')
 	#vid.pop('plane')
@@ -412,7 +437,7 @@ def compareFeatures(model,vid):
 
 		#check if key exists and is in the farther plane
 		if(model.get(key,None) == None):
-			print('Key '+key +'not found in model!\n')
+			#print('Key '+key +'not found in model!\n')
 
 			if(vid['plane'] == 'left'):
 				if(key in ['rElbowrWrist','rShoulderrElbow','rShoulderHip','rHipKnee','rKneeAnkle']):
@@ -434,10 +459,13 @@ def compareFeatures(model,vid):
 		sim[key] = getSimilarity(model[key],vid[key])
 		#print(sim[key])
 		
-	print('Similarity matrix: \n')
-	for key,val in sim.items():
-		print(key + ':' + str(val))
+	#print('Similarity matrix: \n')
+	#for key,val in sim.items():
 
+	#	if(key == 'lKneeAnkle' or key == 'rKneeAnkle' or key == 'lHipKnee' or key == 'rHipKnee'):
+	#		print('---------------------------------------------')
+	#		print(key + '	|	' + str(val))
+	#		print('---------------------------------------------')
 	return sim	
 		
 
@@ -548,6 +576,11 @@ def getFeedBack(vid,results,similarity):
 		
 		squatRes = ServerReadOutput.checkSquat(vid,vid['plane'],results)
 
+		#if(squatRes['depth'] == 'OK' and squatRes.get('spine',None) == 'OK'):
+			#print("Storing")
+			#print(squatRes)
+			#storeModel.storeMovement(vid,'squat')
+
 		#results['depth'] = squatRes['depth']
 
 
@@ -605,4 +638,4 @@ if __name__ == "__main__":
 
 	#compareVideos(rawFeatures,features)
 
-	checkReps(sys.argv[1])
+	

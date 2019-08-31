@@ -6,17 +6,24 @@
 	</header>
 	</div>
 <div>
-	<body>
+	<body style="align-content: center;">
 	{% if flist %}
-		<ul>
-		{% for item in flist %}
-		<!--<li>{{item}}</>-->
 
-		<!--<li><a href="">{{item}}</a></li>--> 
-		<li><a href="/upload/feedback/{{item}}">{{item}}</a></li>
+
+		<table>
+		{% for item in flist %}
+		
+			<tr>
+				<td>
+					<button style="text-align: center;
+					width: 500px">
+						<a href="/upload/feedback/{{item}}">{{item}}</a>
+					</button>
+				</td>
+			</tr>
 		
 		{% endfor %}
-		</ul>
+		</table>
 
 	{% endif %}
 	</body>

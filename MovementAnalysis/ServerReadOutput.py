@@ -195,9 +195,12 @@ def checkKbSwing(similarity,results,plane,features):
 	for key in keys:
 
 
-		thresh = 0.8 * ( - min(features[key]))
+		thresh = 0.7 * ( - min(features[key]))
 
 		if(max(features[key]) < thresh):
+			print(key)
+			print(max(features[key]))
+			print(min(features[key]))
 			results ['depth'] = 'NOK'
 			return results
 	
@@ -211,6 +214,7 @@ def checkKbSwing(similarity,results,plane,features):
 
 def checkSquat(features,plane,results):
 
+	print('checkSquat' + plane)
 	
 
 	if(plane == 'left'):
@@ -466,7 +470,8 @@ def plotRawData(vector):
 	
 	plt.figure(1)
 	plt.plot(vector)
-	plt.draw()
+	plt.show()
+	plt.savefig('autocorr.png')
 	
 
 def getExtractedFeatures():

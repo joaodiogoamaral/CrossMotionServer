@@ -7,7 +7,7 @@ import numpy as np
 import peakutils as pk 
 import scipy
 import peakutils
-
+import ServerReadOutput
 CONFIDENCE_THRESHOLD = 0.5
 INTERPOLATION_ORDER = 10
 
@@ -18,18 +18,22 @@ def autocorr(x):
 
 	print('AUTOCORR')
 	y = np.correlate(x-np.mean(x), x-np.mean(x), mode='full')
+	
+	ServerReadOutput.plotRawData(y[0:10000])
+
 	#modes : valid,same,full 
 	#y = np.correlate(x, x, mode='same')
 	#print(y)
-	indices = peakutils.indexes(y)
+	indices = peakutils.peak.indexes(y[0:10000], thres=0.1)
 
-	print(len(indices))
-
+	
+	result = [x for x in indices[1:] if y[x]>0]
+	print(result)
 
 	#print(indices[0:(len(indices)/2)])
 	#result = peaks(np.correlate(x, x, mode='full'))
 
-	return len(indices)/2
+	return result
     #return result[result.size/2:]
 
 

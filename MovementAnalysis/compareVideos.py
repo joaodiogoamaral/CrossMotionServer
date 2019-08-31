@@ -2,7 +2,9 @@
 
 import processOutputs
 import ReadOutput
-import os,os.path
+import ServerReadOutput
+import ServerCompareVideos
+import os,os.path,json
 import sys
 import numpy
 import matplotlib.pyplot as plt
@@ -12,7 +14,7 @@ import math
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-
+from ServerCompareVideos import MODEL_FOLDER
 from numpy import dot
 from numpy.linalg import norm
 from scipy import spatial
@@ -28,47 +30,119 @@ def compareVideos(args):
 
 		#print(i)
 		
-		[vidAngle,vidPos]= ReadOutput.readOutputs(i)
+		[rawFt,normFeat]= ServerReadOutput.readOutputs(i)
 
-		plane = processOutputs.getPlane(vidPos)
+		angleMatrix.append(normFeat)
 		
 
-		angleMatrix.append(vidAngle)
-		validMatrix.append(ReadOutput.checkSquat(vidAngle,ReadOutput.getExtractedFeatures(),plane))
-
-	
-	
-
-	
-	features=ReadOutput.getExtractedFeatures()
-	
-	plotAngles(angleMatrix,args,features)
-	compareAngles(angleMatrix,features,validMatrix)
-	print(validMatrix)
-
-def compareAngles(angleMatrix,features,results):
-
-	
-
-	for i,elem in enumerate(angleMatrix):
 		
+	#plotAngles(angleMatrix,args,features)
+	compareWithModels(normFeat)
+	#print(validMatrix)
 
-		for j in xrange(i+1,len(angleMatrix)):
+def compareWithModels(normFeat):
 
-			sim = getSimilarity(angleMatrix[i],angleMatrix[j])
 
-			#print('\nVid' + str(i) + 'and' + str(j) + ':	\n'),
-			#print('Valid Squat:'+ str(results[i])+','+str(results[j])),
-			#print(features),
-			#print('\n'+str(sim))
+	maxVals = {
+		'lHipKnee' : -1 ,
+		'rHipKnee' : -1 ,
+		'lKneeAnkle' : -1,
+		'rKneeAnkle' : -1
+	}
+	minVals = {
+		'lHipKnee' : 1 ,
+		'rHipKnee' : 1 ,
+		'lKneeAnkle' : 1,
+		'rKneeAnkle' : 1
+	}
+
+	plane=normFeat['plane']
+
+	vid=dict(normFeat)
+
+	for i in os.listdir(MODEL_FOLDER): #iterate through movements
 
 		
+			directory=os.path.join(os.getcwd(),MODEL_FOLDER,i+'/',plane)
+
+
+			for j in os.listdir(directory): #iterate through models inside a given movement
+			
+				
+				if(i == 'squat'):
+				
+				
+
+				
+					#print('\n\nCOMPARING SQUATS\n\n')
+					with open(os.path.join(directory,j)) as jsonFile:
+					
+
+						model = json.load(jsonFile)
+					
+					#plotFeatures(model,vid)
+
+
+						similarity = ServerCompareVideos.compareFeatures(model,vid)
+					
+						for key,val in maxVals.items():
+
+							if(similarity.get(key,None)!= None):
+
+								if(similarity[key]>maxVals[key]):
+									maxVals[key]=similarity[key]
+
+								if(similarity[key]<minVals[key]):
+									minVals[key]=similarity[key]
+
+						#print(similarity)
+			
+
+
+				elif(i=='kbswing'):
+				
+				
+
+					
+					with open(os.path.join(directory,j)) as jsonFile:
+					
+
+						model = json.load(jsonFile)
+					#vid = dict(featureDict)
+						similarity = ServerCompareVideos.compareFeatures(model,vid)
+
+						for key,val in maxVals.items():
+
+							if(similarity.get(key,None)!= None):
+
+								if(similarity[key]>maxVals[key]):
+									maxVals[key]=similarity[key]
+
+								if(similarity[key]<minVals[key]):
+									minVals[key]=similarity[key]
+
+						#print(similarity)
+					#plotFeatures(model,vid)
+
+						
+
+
+
+				else:
+					continue #irrelevant folder 
+
+
 		
 
-			#print('\nCorrelation coefficient between videos ' + str(i) + 'and' + str(j) + ':	' + str(numpy.corrcoef(angleMatrix[i],angleMatrix[j])))
+			print('\n\nCOMPARING' + i +'\n\n')
+			print('KEY     |    MIN     |     MAX     |' )
+			for key,val in maxVals.items():
 
-			#print('\nMinimum of CosineSimilarity between videos \n'+ str(i) + 'and' + str(j) + ':	' + str(min(sim)))
-			#print('\nMaximum of CosineSimilarity between videos \n'+ str(i) + 'and' + str(j) + ':	' + str(max(sim)))
+				print('-----------------------------------------')
+				print(key + '  |    ' +str(minVals[key]))+'    |     '+str(maxVals[key])
+				print('-----------------------------------------')
+				minVals[key] = 1
+				maxVals[key] = -1
 
 def plotAngles(angles,titles,features):
 

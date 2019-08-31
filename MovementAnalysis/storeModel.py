@@ -35,9 +35,12 @@ def storeMovement(features,exercise):
 
 def getFeaturesAndStore(args):
 
+	#print(args)
 
 
-	features = ServerReadOutput.readOutputs(args[1])
+	[dummy,features] = ServerReadOutput.readOutputs(args[1])
+
+	print(features)
 
 	storeMovement(features,args[2]) #args[2]= exercise
 

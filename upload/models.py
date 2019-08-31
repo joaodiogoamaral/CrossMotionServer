@@ -16,11 +16,13 @@ class Document(models.Model):
 
 class Feedback(models.Model):
 
+
 	feedback = models.CharField(max_length=200)
 
 
 class Rep(models.Model):
 
+	repNumber = models.IntegerField()
 	feedback = models.ManyToManyField(Feedback)
 
 

@@ -45,9 +45,11 @@ MEDIA_URL = settings.MEDIA_URL
 FEEDBACK_MATRIX = {
 
 
-	'Error' : 'There was a problem processing the video',
+	'NoRepsFound' : 'There was a problem identifying the repetitions on your video.\n',
 
-	'UnknownExercise' : 'Your video did not match any exercise in our database!',
+	'Error' : 'There was a problem processing the video\n',
+
+	'UnknownExercise' : 'We could not identify yout movement\n',
 
 	'NoPeople' : 'No people were found in your video!!!',
 
@@ -190,16 +192,22 @@ def upload_video(request):
 		feedbackEntries = run_crossmotion(os.path.basename(filename))
 
 		videEntry= VideoEntry(username=username,videoUploaded=os.path.basename(filename),repCount=len(feedbackEntries),processedVideoPath=username+'/'+videoname+'/'+os.path.basename(filename))
-
+		videEntry.save()
 		repNo = 0
-		for i in feedbackEntries:
-			#create new class Rep
-			rep = Rep(id=repNo+1)
 
-			repno = repNo + 1 
+		
+		for i in feedbackEntries:
+
+			print('\n\nfeedbackEntries:\n\n')
+			print(i)
+			#create new class Rep
+			rep = Rep(repNumber=repNo+1)
+			
+			repNo = repNo + 1 
 
 			for j in i:
 			#create new class feedback
+				print('\n\n Adding feedback: \n\n' + j)
 				feedback = Feedback(feedback=j)
 				feedback.save()
 				
@@ -207,13 +215,19 @@ def upload_video(request):
 
 				rep.feedback.add(feedback)
 
-			rep.save()
-			videEntry.save()
+				rep.save()
+			
+			print(rep.feedback.all())
+			
+			print('Adding one rep!!!\n\n')
 			videEntry.rep.add(rep)
-		#print('Entry to add:')
-		#print(videEntry)
-		
 
+			videEntry.save()
+
+		print('Entry to add:')
+		print(videEntry.rep.all())
+		
+		
 		print('REPCOUNT: ' + str(videEntry.repCount))
 
 			
@@ -237,11 +251,12 @@ def upload_video(request):
 def show_uploaded(request):
 	
 	global username
-	username = None
+	
 
 	if(request.user.is_authenticated()):
 		username = request.user.username
-
+	else:
+		return reverse_lazy('upload:login')
 
 
 	print('\nLOGGED IN: \n' + username)
@@ -260,7 +275,7 @@ def show_uploaded(request):
 			if(i.username==username):
 
 				flist.append(i.videoUploaded.decode('utf-8'))
-				#flist.append('batata')
+
 
 		print(flist)
 
@@ -306,10 +321,20 @@ def run_crossmotion(filename):
 		
 
 
+		feedbackEntries = []
 
 		comparison=ServerCompareVideos.compareVideos(rawOutput,output)
 
-		feedbackEntries = []
+		if(len(comparison) == 0):
+			result = []
+
+			result.append(FEEDBACK_MATRIX['NoRepsFound'])
+
+			feedbackEntries.append(result)
+
+			return feedbackEntries
+
+		
 		for i in comparison:
 			
 			result=[]
@@ -342,7 +367,7 @@ def run_crossmotion(filename):
 				result.append(FEEDBACK_MATRIX['kbswing'])
 
 				if(i['depth'] == 'NOK'):
-					result.append(FEEDBACK_MATRIX['BadkbSwing'])
+					#result.append(FEEDBACK_MATRIX['BadkbSwing'])
 					result.append(FEEDBACK_MATRIX['kbswingTip1'])
 					result.append(FEEDBACK_MATRIX['kbswingTip2'])
 				else:
@@ -358,7 +383,7 @@ def run_crossmotion(filename):
 			feedbackEntries.append(result)
 
 
-		print(feedbackEntries)
+		#print(feedbackEntries)
 
 		return feedbackEntries
 
@@ -385,24 +410,48 @@ def feedback(request,video_name):
 
 	flist = []
 
+	rlist = []
+
+	reps = []
+
+	repTips = []
+
 	for i in db_list:
 
 		if(i.videoUploaded==video_name and i.username == username):
 
-
+			rep_list = i.rep.all()
 			
+			
+			#print(len(rep_list))
 
 			op_output_path = i.processedVideoPath
 
-			print(op_output_path)
+			print(i.repCount)
 
-			for j in i.feedback.all():
-				#Feedback model object has a charField named feedback
-				flist.append(j.feedback)
+			#print(i)
+			for j in rep_list:
+				
+				print(j.repNumber)
+				reps.append(j.repNumber)
+
+				print('\n\n Showing rep:' + str(j) +'\n\n\n')
+
+				tip_list = j.feedback.all()
+
+				res = []
+				for tip in tip_list:
+					res.append(tip.feedback)
+				repTips.append(res)	
+
+				
+
+
+				
 	
 
 
-	return render(request,'upload/feedback.html',{'directives':flist,'video_name':video_name , 'op_output_path':op_output_path  , 'MEDIA_URL':MEDIA_URL} )
+	return render(request,'upload/feedback.html',{ 'repTips':repTips ,'reps': reps ,'rlist':rlist,'video_name':video_name , 'op_output_path':op_output_path  , 'MEDIA_URL':MEDIA_URL} )
 
 
 
